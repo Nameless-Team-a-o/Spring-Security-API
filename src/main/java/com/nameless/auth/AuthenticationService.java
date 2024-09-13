@@ -79,11 +79,11 @@ public class AuthenticationService {
       return;
     }
     refreshToken = authHeader.substring(7);
-    userEmail = jwtService.extractUsername(refreshToken);
+    userEmail = jwtService.extractUsernameFromRefresh(refreshToken);
     if (userEmail != null) {
       var user = this.repository.findByEmail(userEmail).orElseThrow();
 
-      if (jwtService.isTokenValid(refreshToken, user)) {
+      if (jwtService.isRefreshTokenValid(refreshToken, user)) {
 
         var accessToken = jwtService.generateToken(user);
         revokeAllUserTokens(user);
@@ -110,11 +110,11 @@ public class AuthenticationService {
       return Optional.empty();
     }
 
-    if (jwtService.isTokenExpired(token)) {
+    if (jwtService.isAccessTokenExpired(token)) {
       return Optional.empty();
     }
 
-    String email = jwtService.extractUsername(token);
+    String email = jwtService.extractUsernameFromAccess(token);
     return repository.findByEmail(email);
   }
 
