@@ -18,8 +18,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
-  @Value("${application.security.jwt.secret-key}")
-  private String secretKey;
+  @Value("${application.security.jwt.accessSecret-key}")
+  private String accessSecretKey;
+  @Value("${application.security.jwt.refresh-token.refreshSecret-key}")
+  private String refreshSecretKey;
   @Value("${application.security.jwt.expiration}")
   private long jwtExpiration;
   @Value("${application.security.jwt.refresh-token.expiration}")
@@ -42,19 +44,18 @@ public class JwtService {
       Map<String, Object> extraClaims,
       UserDetails userDetails
   ) {
-    return buildToken(extraClaims, userDetails, jwtExpiration);
+    return buildToken(extraClaims, userDetails, jwtExpiration, accessSecretKey);
   }
 
-  public String generateRefreshToken(
-      UserDetails userDetails
-  ) {
-    return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+  public String generateRefreshToken(UserDetails userDetails) {
+    return buildToken(new HashMap<>(), userDetails, refreshExpiration ,refreshSecretKey);
   }
 
   private String buildToken(
           Map<String, Object> extraClaims,
           UserDetails userDetails,
-          long expiration
+          long expiration,
+          String key
   ) {
     return Jwts
             .builder()
@@ -62,7 +63,7 @@ public class JwtService {
             .setSubject(userDetails.getUsername())
             .setIssuedAt(new Date(System.currentTimeMillis()))
             .setExpiration(new Date(System.currentTimeMillis() + expiration))
-            .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+            .signWith(getSignInKey(key), SignatureAlgorithm.HS256)
             .compact();
   }
 
@@ -82,13 +83,13 @@ public class JwtService {
   private Claims extractAllClaims(String token) {
     return Jwts
         .parserBuilder()
-        .setSigningKey(getSignInKey())
+        .setSigningKey(getSignInKey(accessSecretKey))
         .build()
         .parseClaimsJws(token)
         .getBody();
   }
 
-  private Key getSignInKey() {
+  private Key getSignInKey(String secretKey) {
     byte[] keyBytes = Decoders.BASE64.decode(secretKey);
     return Keys.hmacShaKeyFor(keyBytes);
   }

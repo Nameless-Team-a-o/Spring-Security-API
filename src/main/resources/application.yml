@@ -17,9 +17,10 @@ spring:
 application:
   security:
     jwt:
-      secret-key: FDBAB94A50DCF54E37FBB01D23CFED8192C6C94DCC31CAFE24F901F23B859680
+      accessSecret-key: FDBAB94A50DCF54E37FBB01D23CFED8192C6C94DCC31CAFE24F901F23B859680
       expiration: 10800000 # 3 hour
       refresh-token:
+        refreshSecret-key: 622D8BD8A1601531103CF7B87C578EA001A29CABF2394F25B34DAA95C487726D
         expiration: 86400000  # 1 day
 server:
   error:
