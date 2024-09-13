@@ -1,5 +1,8 @@
 package com.nameless.security.jwt;
 
+import com.nameless.entity.token.Token;
+import com.nameless.entity.token.TokenRepository;
+import com.nameless.entity.token.TokenUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -9,14 +12,21 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
+
+  private final PasswordEncoder passwordEncoder;
+  private final TokenRepository tokenRepository;
 
   @Value("${application.security.jwt.accessSecret-key}")
   private String accessSecretKey;
@@ -73,9 +83,14 @@ public class JwtService {
     return (username.equals(userDetails.getUsername())) && !isAccessTokenExpired(token);
   }
 
-  public boolean isRefreshTokenValid(String token, UserDetails userDetails) {
-    final String username = extractUsernameFromRefresh(token);
-    return (username.equals(userDetails.getUsername())) && !isRefreshTokenExpired(token);
+  public boolean isRefreshTokenValid(String refreshToken, UserDetails userDetails) {
+    final String username = extractUsernameFromRefresh(refreshToken);
+    if (username.equals(userDetails.getUsername())) {
+      String hashedToken = TokenUtils.hashToken(refreshToken);
+      Optional<Token> storedToken = tokenRepository.findByTokenHash(hashedToken);
+      return storedToken.isPresent() && !storedToken.get().isExpired() && !storedToken.get().isRevoked();
+    }
+    return false;
   }
 
   public boolean isAccessTokenExpired(String token) {
@@ -91,12 +106,16 @@ public class JwtService {
   }
 
   private Claims extractAllClaims(String token, String key) {
-    return Jwts
-            .parserBuilder()
-            .setSigningKey(getSignInKey(key))
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
+    try {
+      return Jwts
+              .parserBuilder()
+              .setSigningKey(getSignInKey(key))
+              .build()
+              .parseClaimsJws(token)
+              .getBody();
+    } catch (Exception e) {
+      throw new RuntimeException("Token parsing failed", e);
+    }
   }
 
   private Key getSignInKey(String secretKey) {
