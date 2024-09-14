@@ -1,6 +1,9 @@
 package com.nameless.auth;
 
 import com.nameless.entity.token.TokenUtils;
+import com.nameless.entity.verificationToken.model.VerificationToken;
+import com.nameless.entity.verificationToken.repository.VerificationTokenRepository;
+import com.nameless.entity.verificationToken.service.VerificationTokenService;
 import com.nameless.security.jwt.JwtService;
 import com.nameless.dto.AuthRequestDTO;
 import com.nameless.dto.AuthResponseDTO;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -34,24 +38,26 @@ public class AuthenticationService {
   private final AuthenticationManager authenticationManager;
   @Value("${application.security.jwt.refresh-token.expiration}")
   private long refreshTokenExpirationDays;
+  private final VerificationTokenService verificationTokenService;
+  private final VerificationTokenRepository verificationTokenRepository;
 
-  public AuthResponseDTO register(RegisterRequestDTO request) {
+  public boolean register(RegisterRequestDTO request) {
+    Optional<User> userOptional = repository.findByEmail(request.getEmail());
+    if(userOptional.isPresent()) {
+      return false;
+    }
     var user = User.builder()
             .username(request.getUsername())
             .email(request.getEmail())
             .password(passwordEncoder.encode(request.getPassword()))
             .role(request.getRole())
             .build();
-    var savedUser = repository.save(user);
-    var jwtToken = jwtService.generateToken(user);
-    var refreshToken = jwtService.generateRefreshToken(user);
-
-    saveUserToken(savedUser, refreshToken);
-
-    return AuthResponseDTO.builder()
-            .accessToken(jwtToken)
-            .refreshToken(refreshToken)
-            .build();
+    User savedUser = repository.save(user);
+    String verificationToken = UUID.randomUUID().toString();
+    String verificationLink = "http://localhost:8080/api/v1/auth/verify/" + verificationToken;
+    verificationTokenService.saveToken(verificationToken, request.getEmail() , LocalDateTime.now().plusHours(1));
+    verificationTokenService.sendVerificationEmail(request.getEmail(), verificationLink);
+    return true;
   }
 
   public AuthResponseDTO authenticate(AuthRequestDTO request) {
@@ -63,6 +69,12 @@ public class AuthenticationService {
     );
 
     var user = repository.findByEmail(request.getEmail()).orElseThrow();
+    Optional <VerificationToken> verificationToken = verificationTokenRepository.findByUserEmail(request.getEmail());
+    boolean verified = verificationToken.get().isUsed() ;
+    if (!verified) {
+      throw new RuntimeException("Account is not verified");
+    }
+
     var jwtToken = jwtService.generateToken(user);
     var refreshToken = jwtService.generateRefreshToken(user);
     revokeAllUserTokens(user);
@@ -158,5 +170,14 @@ public class AuthenticationService {
         }
         tokenRepository.saveAll(validUserTokens);
     }
+  }
+
+  public boolean verify(String verToken) {
+    return verificationTokenService.verifyToken(verToken);
+
+  }
+
+  public void newVerifyToken(String userEmail) {
+    verificationTokenService.newVerifyToken(userEmail);
   }
 }

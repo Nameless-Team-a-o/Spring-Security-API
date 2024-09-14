@@ -17,27 +17,4 @@ public class SecurityApplication {
 		SpringApplication.run(SecurityApplication.class, args);
 	}
 
-	@Bean
-	public CommandLineRunner commandLineRunner(
-			AuthenticationService service
-	) {
-		return args -> {
-			var admin = RegisterRequestDTO.builder()
-					.username("Amr")
-					.email("amr@gmail.com")
-					.password("1234")
-					.role(ADMIN)
-					.build();
-			System.out.println("Admin token: " + service.register(admin).getAccessToken());
-
-			var manager = RegisterRequestDTO.builder()
-					.username("Omar")
-					.email("omar@gmail.com")
-					.password("51245")
-					.role(MANAGER)
-					.build();
-			System.out.println("Manager token: " + service.register(manager).getAccessToken());
-
-		};
-	}
 }

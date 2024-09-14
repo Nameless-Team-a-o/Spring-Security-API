@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -25,8 +26,11 @@ public class AuthenticationController {
 
 
   @PostMapping("/register")
-  public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO request) {
-    return ResponseEntity.ok(service.register(request));
+  public ResponseEntity<String> register(@RequestBody RegisterRequestDTO request) {
+    if(service.register(request)) {
+      return ResponseEntity.status(HttpStatus.CREATED).body("Register successful");
+    }
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Register failed");
   }
 
   @PostMapping("/login")
@@ -58,6 +62,28 @@ public class AuthenticationController {
     } catch (Exception e) {
 
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
+  }
+
+  @GetMapping("/verify/{verToken}")
+  public ResponseEntity<String> verify(@PathVariable("verToken") String verToken) {
+    if(service.verify(verToken))
+      return ResponseEntity.ok("Your account has been verified.");
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+
+  }
+
+  @PostMapping("/renew-token")
+  public ResponseEntity<String> renewToken(@RequestBody Map<String, String> payload) {
+    String userEmail = payload.get("email");
+    if (userEmail == null) {
+      return ResponseEntity.badRequest().body("Missing userEmail in request");
+    }
+    try {
+      service.newVerifyToken(userEmail);
+      return ResponseEntity.ok("Verification email sent. Please check your email to verify your account.");
+    } catch (Exception e) {
+      return ResponseEntity.status(500).body("Error occurred while renewing token.");
     }
   }
 
