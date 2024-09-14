@@ -28,7 +28,7 @@ public class AuthenticationController {
   @PostMapping("/register")
   public ResponseEntity<String> register(@RequestBody RegisterRequestDTO request) {
     if(service.register(request)) {
-      return ResponseEntity.status(HttpStatus.CREATED).body("Register successful");
+      return ResponseEntity.status(HttpStatus.CREATED).body("Register successful, please check your email to verify your account.");
     }
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Register failed");
   }
@@ -83,7 +83,13 @@ public class AuthenticationController {
       service.newVerifyToken(userEmail);
       return ResponseEntity.ok("Verification email sent. Please check your email to verify your account.");
     } catch (Exception e) {
-      return ResponseEntity.status(500).body("Error occurred while renewing token.");
+      if (e.getMessage().equals("No account found for the provided email.")) {
+        return ResponseEntity.status(400).body("No account found for the provided email. Please register first.");
+      } else if (e.getMessage().equals("Account is already verified.")) {
+        return ResponseEntity.status(400).body("Your account is already verified. No need to request another verification.");
+      } else {
+        return ResponseEntity.status(500).body("Error occurred while renewing token.");
+      }
     }
   }
 

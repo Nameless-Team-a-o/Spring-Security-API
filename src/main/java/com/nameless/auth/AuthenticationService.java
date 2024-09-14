@@ -177,7 +177,7 @@ public class AuthenticationService {
 
   }
 
-  public void newVerifyToken(String userEmail) {
+  public void newVerifyToken(String userEmail) throws Exception {
     verificationTokenService.newVerifyToken(userEmail);
   }
 }
