@@ -1,17 +1,17 @@
 package com.nameless.auth;
 
-import com.nameless.entity.token.TokenUtils;
+import com.nameless.service.TokenHashingService;
 import com.nameless.entity.verificationToken.model.VerificationToken;
 import com.nameless.entity.verificationToken.repository.VerificationTokenRepository;
-import com.nameless.entity.verificationToken.service.VerificationTokenService;
-import com.nameless.security.jwt.JwtService;
+import com.nameless.service.VerificationTokenService;
+import com.nameless.jwt.JwtService;
 import com.nameless.dto.AuthRequestDTO;
 import com.nameless.dto.AuthResponseDTO;
 import com.nameless.dto.RegisterRequestDTO;
-import com.nameless.entity.token.Token;
-import com.nameless.entity.token.TokenRepository;
+import com.nameless.entity.refreshToken.model.RefreshToken;
+import com.nameless.entity.refreshToken.repository.RefreshTokenRepository;
 import com.nameless.entity.user.model.User;
-import com.nameless.entity.user.Repository.UserRepository;
+import com.nameless.entity.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +32,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthenticationService {
   private final UserRepository repository;
-  private final TokenRepository tokenRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
@@ -141,7 +141,7 @@ public class AuthenticationService {
     }
 
     var user = userOptional.get();
-    var validTokens = tokenRepository.findAllValidTokenByUser(user.getId());
+    var validTokens = refreshTokenRepository.findAllValidTokenByUser(user.getId());
 
     boolean isTokenValid = validTokens.stream()
             .anyMatch(t -> !t.isRevoked());
@@ -153,22 +153,22 @@ public class AuthenticationService {
   }
 
   private void saveUserToken(User user, String refreshToken) {
-    var token = Token.builder()
+    var token = RefreshToken.builder()
             .user(user)
-            .token(TokenUtils.hashToken(refreshToken))
+            .token(TokenHashingService.hashToken(refreshToken))
             .expiration(LocalDateTime.now().plusDays(refreshTokenExpirationDays))
             .revoked(false)
             .build();
-    tokenRepository.save(token);
+    refreshTokenRepository.save(token);
   }
 
   private void revokeAllUserTokens(User user) {
-    var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
+    var validUserTokens = refreshTokenRepository.findAllValidTokenByUser(user.getId());
     if (!validUserTokens.isEmpty()) {
-        for (Token token : validUserTokens) {
-            token.setRevoked(true);
+        for (RefreshToken refreshToken : validUserTokens) {
+            refreshToken.setRevoked(true);
         }
-        tokenRepository.saveAll(validUserTokens);
+        refreshTokenRepository.saveAll(validUserTokens);
     }
   }
 

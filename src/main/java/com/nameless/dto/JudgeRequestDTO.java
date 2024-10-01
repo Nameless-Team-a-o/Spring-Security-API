@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubmissionSend {
+public class JudgeRequestDTO {
     private Long submissionId;
     private String languageId;
     private String code;

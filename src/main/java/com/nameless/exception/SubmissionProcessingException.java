@@ -1,4 +1,7 @@
 package com.nameless.exception;
 
-public class SubmissionProcessingException {
+public class SubmissionProcessingException extends RuntimeException {
+    public SubmissionProcessingException(String message) {
+        super(message);
+    }
 }

@@ -1,9 +1,7 @@
-package com.nameless.security.config;
+package com.nameless.config;
 
-import com.nameless.entity.user.Repository.UserRepository;
+import com.nameless.entity.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

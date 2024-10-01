@@ -1,6 +1,7 @@
 package com.nameless.entity.user.model;
 
-import com.nameless.entity.token.Token;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.nameless.entity.submission.model.Submission;
 import jakarta.persistence.*;
 
 import java.util.Collection;
@@ -24,7 +25,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class User implements UserDetails {
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @Column(nullable = false)
@@ -44,9 +45,9 @@ public class User implements UserDetails {
   @Enumerated(EnumType.STRING)
   private Role role;
 
-
-  @OneToMany(mappedBy = "user")
-  private List<Token> tokens;
+  @OneToMany(mappedBy = "user") // One user can have multiple submissions
+  @JsonManagedReference // This will be serialized as part of the user
+  private List<Submission> submissions; // List of submissions for the user
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

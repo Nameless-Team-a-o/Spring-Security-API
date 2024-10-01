@@ -1,6 +1,6 @@
-package com.nameless.entity.verificationToken.service;
+package com.nameless.service;
 
-import com.nameless.entity.user.Repository.UserRepository;
+import com.nameless.entity.user.repository.UserRepository;
 import com.nameless.entity.user.model.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

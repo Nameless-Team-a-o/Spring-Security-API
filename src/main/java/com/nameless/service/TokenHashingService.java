@@ -1,10 +1,10 @@
-package com.nameless.entity.token;
+package com.nameless.service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class TokenUtils {
+public class TokenHashingService {
 
     public static String hashToken(String token) {
         try {

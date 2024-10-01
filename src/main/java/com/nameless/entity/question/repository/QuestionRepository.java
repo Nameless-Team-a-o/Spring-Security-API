@@ -1,5 +1,6 @@
-package com.nameless.entity.question;
+package com.nameless.entity.question.repository;
 
+import com.nameless.entity.question.model.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

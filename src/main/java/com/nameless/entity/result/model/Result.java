@@ -1,6 +1,6 @@
-package com.nameless.entity.result;
+package com.nameless.entity.result.model;
 
-import com.nameless.entity.submission.Submission;
+import com.nameless.entity.submission.model.Submission;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

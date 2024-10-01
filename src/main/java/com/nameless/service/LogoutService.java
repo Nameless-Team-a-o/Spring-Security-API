@@ -1,7 +1,6 @@
-package com.nameless.security.service;
+package com.nameless.service;
 
-import com.nameless.entity.token.TokenRepository;
-import com.nameless.entity.token.TokenUtils;
+import com.nameless.entity.refreshToken.repository.RefreshTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class LogoutService implements LogoutHandler {
 
-  private final TokenRepository tokenRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
   private final PasswordEncoder passwordEncoder;
 
   @Override
@@ -33,16 +32,16 @@ public class LogoutService implements LogoutHandler {
     }
 
     String rawRefreshToken = authHeader.substring(7);
-    String hashedRefreshToken = TokenUtils.hashToken(rawRefreshToken);
+    String hashedRefreshToken = TokenHashingService.hashToken(rawRefreshToken);
 
     // Find the token by the hashed refresh token
-    var storedToken = tokenRepository.findByTokenHash(hashedRefreshToken).orElse(null);
+    var storedToken = refreshTokenRepository.findByTokenHash(hashedRefreshToken).orElse(null);
 
     if (storedToken != null) {
       // Mark the token as revoked and expired
       storedToken.setRevoked(true);
       storedToken.setExpiration(LocalDateTime.now().minusDays(1));
-      tokenRepository.save(storedToken);
+      refreshTokenRepository.save(storedToken);
 
       // Clear the SecurityContext
       SecurityContextHolder.clearContext();

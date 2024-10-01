@@ -18,6 +18,7 @@ import static com.nameless.entity.user.model.Permission.MANAGER_DELETE;
 import static com.nameless.entity.user.model.Permission.MANAGER_READ;
 import static com.nameless.entity.user.model.Permission.MANAGER_UPDATE;
 
+@Getter
 @RequiredArgsConstructor
 public enum Role {
 
@@ -46,7 +47,6 @@ public enum Role {
           )
   );
 
-  @Getter
   private final Set<Permission> permissions;
 
   public List<SimpleGrantedAuthority> getAuthorities() {

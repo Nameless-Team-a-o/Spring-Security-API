@@ -4,6 +4,11 @@ spring:
     username: postgres
     password: 1234
     driver-class-name: org.postgresql.Driver
+  rabbitmq:
+    host: localhost  # Change this if RabbitMQ is on a different host
+    port: 5672
+    username: guest   # Default username
+    password: guest   # Default password
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -17,7 +22,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: namelessorgao@gmail.com
-    password: npbv tcoy zcqb ngsy
+    password: qunj xnpx zsiw krqo
 
     properties:
       mail:
@@ -37,4 +42,5 @@ server:
   error:
     include-message: always
 
-
+secondserver:
+  url: "http://localhost:9090"

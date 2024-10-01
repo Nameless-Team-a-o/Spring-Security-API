@@ -1,4 +1,4 @@
-package com.nameless.entity.user.Repository;
+package com.nameless.entity.user.repository;
 
 import java.util.Optional;
 

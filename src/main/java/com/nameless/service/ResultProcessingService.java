@@ -1,10 +1,10 @@
 package com.nameless.service;
 
 import com.nameless.dto.ResultResponseDTO;
-import com.nameless.entity.result.Result;
-import com.nameless.entity.result.ResultRepository;
-import com.nameless.entity.submission.Submission;
-import com.nameless.entity.submission.SubmissionRepository;
+import com.nameless.entity.result.model.Result;
+import com.nameless.entity.result.repository.ResultRepository;
+import com.nameless.entity.submission.model.Submission;
+import com.nameless.entity.submission.repository.SubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class ResultService {
+public class ResultProcessingService {
 
     private final SubmissionRepository submissionRepository;
     private final ResultRepository resultRepository;
@@ -20,7 +20,7 @@ public class ResultService {
     public void processResult(ResultResponseDTO resultResponse) {
         Submission submission = findSubmissionById(resultResponse.getSubmissionId());
 
-        updateSubmission(submission, resultResponse.getStatus().getDescription());
+        updateSubmission(submission, resultResponse.getStatus().getDescription() , resultResponse.getStdout()) ;
         saveResult(submission, resultResponse);
     }
 
@@ -30,9 +30,10 @@ public class ResultService {
                 .orElseThrow(() -> new IllegalArgumentException("Submission not found"));
     }
 
-    private void updateSubmission(Submission submission, String statusDescription) {
+    private void updateSubmission(Submission submission, String statusDescription , String stdout) {
         submission.setStatus("COMPLETED");
         submission.setResult(statusDescription);
+        submission.setActualOutput(stdout);
         submissionRepository.save(submission);
     }
 

@@ -1,7 +1,7 @@
-package com.nameless.entity.submission;
+package com.nameless.entity.submission.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nameless.entity.question.Question;
+import com.nameless.entity.question.model.Question;
 import com.nameless.entity.user.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -32,7 +32,8 @@ public class Submission {
     private Question question;
     @Column( unique = true )
     private String code; // The code submitted by the user
-    private String expectedOutput; // The expected output for the question
+    private String expectedOutput;// The expected output for the question
+    private String actualOutput;
     private String status; // Possible statuses: PENDING, PROCESSING, COMPLETED
     private String result; // The actual result after code execution
     private LocalDateTime createdAt; // Timestamp when the submission was created

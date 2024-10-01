@@ -1,4 +1,4 @@
-package com.nameless.security.config;
+package com.nameless.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;

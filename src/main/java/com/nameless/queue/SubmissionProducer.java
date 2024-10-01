@@ -1,12 +1,14 @@
-package com.nameless.entity.submission;
+package com.nameless.queue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nameless.dto.SubmissionRequestDTO;
 import com.nameless.dto.JudgeRequestDTO;
-import com.nameless.entity.question.Question;
-import com.nameless.entity.question.QuestionRepository;
-import com.nameless.entity.user.Repository.UserRepository;
+import com.nameless.entity.question.model.Question;
+import com.nameless.entity.question.repository.QuestionRepository;
+import com.nameless.entity.submission.model.Submission;
+import com.nameless.entity.submission.repository.SubmissionRepository;
+import com.nameless.entity.user.repository.UserRepository;
 import com.nameless.entity.user.model.User;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;

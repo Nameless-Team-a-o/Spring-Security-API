@@ -1,6 +1,6 @@
-package com.nameless.security.config;
+package com.nameless.config;
 
-import com.nameless.security.jwt.JwtAuthenticationFilter;
+import com.nameless.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +31,7 @@ public class SecurityConfiguration {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/api/v1/auth/**" , "/api/v1/submissions")
+                        req.requestMatchers("/api/v1/auth/**")
 
                                 .permitAll()
                                 .anyRequest()

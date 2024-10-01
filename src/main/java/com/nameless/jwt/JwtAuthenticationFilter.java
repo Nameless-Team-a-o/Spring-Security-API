@@ -1,7 +1,7 @@
-package com.nameless.security.jwt;
+package com.nameless.jwt;
 
-import com.nameless.entity.token.TokenRepository;
-import com.nameless.entity.user.Repository.UserRepository;
+import com.nameless.entity.refreshToken.repository.RefreshTokenRepository;
+import com.nameless.entity.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtService jwtService;
   private final UserDetailsService userDetailsService;
-  private final TokenRepository tokenRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
   private final UserRepository userRepository;
 
   @Override
@@ -55,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       //for logout
       var user = userRepository.findByEmail(userEmail).orElse(null);
       if (user != null) {
-        var validTokens = tokenRepository.findAllValidTokenByUser(user.getId());
+        var validTokens = refreshTokenRepository.findAllValidTokenByUser(user.getId());
         boolean isTokenValid = validTokens.stream().anyMatch(t -> !t.isRevoked());
 
         if (jwtService.isAccessTokenValid(jwt, userDetails) && isTokenValid) {

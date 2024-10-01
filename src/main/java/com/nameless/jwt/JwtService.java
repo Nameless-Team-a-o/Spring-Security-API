@@ -1,8 +1,8 @@
-package com.nameless.security.jwt;
+package com.nameless.jwt;
 
-import com.nameless.entity.token.Token;
-import com.nameless.entity.token.TokenRepository;
-import com.nameless.entity.token.TokenUtils;
+import com.nameless.entity.refreshToken.model.RefreshToken;
+import com.nameless.entity.refreshToken.repository.RefreshTokenRepository;
+import com.nameless.service.TokenHashingService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 public class JwtService {
 
   private final PasswordEncoder passwordEncoder;
-  private final TokenRepository tokenRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
 
   @Value("${application.security.jwt.accessSecret-key}")
   private String accessSecretKey;
@@ -86,8 +86,8 @@ public class JwtService {
   public boolean isRefreshTokenValid(String refreshToken, UserDetails userDetails) {
     final String username = extractUsernameFromRefresh(refreshToken);
     if (username.equals(userDetails.getUsername())) {
-      String hashedToken = TokenUtils.hashToken(refreshToken);
-      Optional<Token> storedToken = tokenRepository.findByTokenHash(hashedToken);
+      String hashedToken = TokenHashingService.hashToken(refreshToken);
+      Optional<RefreshToken> storedToken = refreshTokenRepository.findByTokenHash(hashedToken);
       return storedToken.isPresent() && !storedToken.get().isExpired() && !storedToken.get().isRevoked();
     }
     return false;
