@@ -1,7 +1,6 @@
 package com.nameless.entity.user.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.nameless.entity.submission.model.Submission;
 import jakarta.persistence.*;
 
 import java.util.Collection;
@@ -45,9 +44,6 @@ public class User implements UserDetails {
   @Enumerated(EnumType.STRING)
   private Role role;
 
-  @OneToMany(mappedBy = "user") // One user can have multiple submissions
-  @JsonManagedReference // This will be serialized as part of the user
-  private List<Submission> submissions; // List of submissions for the user
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
